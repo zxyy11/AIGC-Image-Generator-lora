@@ -1,0 +1,23 @@
+name: Sync to Hugging Face Spaces
+
+# 🔍 触发条件：一旦发现 main 分支有代码 push 进来，小秘书就立刻开工
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 把 GitHub 仓库里的代码拉取到自动化服务器上
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      # 2. 强行推送到 Hugging Face Spaces 对应的空间里
+      # ⚠️ 注意：请把下面链接里的【你的HF用户名】和【你的Space空间名】替换成你真实的网页名字！
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/【你的HF用户名】/【你的Space空间名】 main
