@@ -21,7 +21,7 @@ def generate_image(prompt):
     return image
 
 # 4. 搭建 Gradio 交互网页
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+with gr.Blocks() as demo:
     gr.Markdown(f"# 🎨 AIGC 图像生成器")
     gr.Markdown(f"**当前运行节点:** `{device.upper()}` (如果是 CPU 模式，生图约需 1-2 分钟，请耐心等待)")
     
@@ -41,4 +41,4 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
 
 # 5. 启动应用
 if __name__ == "__main__":
-    demo.launch()
+   demo.launch(theme=gr.themes.Soft())
