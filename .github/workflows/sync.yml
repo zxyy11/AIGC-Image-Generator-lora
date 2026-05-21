@@ -20,4 +20,4 @@ jobs:
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/【你的HF用户名】/【你的Space空间名】 main
+        run: git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/zxyy11/image-algorithm main
