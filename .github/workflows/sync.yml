@@ -2,8 +2,8 @@ name: Sync to Hugging Face Hub
 
 on:
   push:
-    branches: [main] # 只要 main 分支有更新，就触发同步
-  workflow_dispatch: # 允许在 GitHub 页面上手动点击触发
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   sync-to-hub:
@@ -13,13 +13,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true # 如果你后续用了 Git LFS，确保可以拉取大文件
+          lfs: true
 
       - name: Push to Hugging Face
         env:
-          # 从 GitHub 保险箱里读取我们刚刚存的 Token
-          HF_TOKEN: ${{ secrets.HF_TOKEN }} 
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # 💡 请把下面的【你的HF用户名】和【你的Space空间名】替换成你自己的真实名字！
-          # 比如：https://huggingface.co/spaces/zxyy11/AIGC-Madias-Generator
-                  run: git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/zxyy11/zxyy11/AIGC_Image_Generator_lora main
+          git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/zxyy11/zxyy11/AIGC_Image_Generator_lora main
+          
