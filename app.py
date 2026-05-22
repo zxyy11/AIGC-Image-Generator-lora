@@ -36,7 +36,7 @@ lora_path = "./output_lora/madias_style_lora"
 if os.path.exists(lora_path):
     pipe.load_lora_weights(lora_path)
 else:
-    pipe.load_lora_weights("./madias_style_lora")
+    pipe.load_lora_weights("./output_lora/madias_style_lora")
 
 pipe.to(device)
 
