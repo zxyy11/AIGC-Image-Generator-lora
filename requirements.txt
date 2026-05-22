@@ -5,3 +5,4 @@ gradio
 opencv-python-headless
 numpy
 torchvision
+accelerate
