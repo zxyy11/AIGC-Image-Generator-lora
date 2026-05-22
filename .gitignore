@@ -5,9 +5,12 @@ __pycache__/
 
 # 忽略巨大的数据集和模型产物
 dataset/
-output_lora/
+output_lora/*
 *.safetensors
 *.bin
+# 👇 白名单：
+!output_lora/madias_style_lora/
+!output_lora/madias_style_lora/*
 
 # 忽略测试生成的图片
 *.png
