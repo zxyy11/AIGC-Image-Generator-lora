@@ -30,13 +30,9 @@ pipe = StableDiffusionControlNetPipeline.from_pretrained(
     torch_dtype=dtype
 )
 
-#加载国风水彩画风LoRA
+# 加载国风水彩画风LoRA
 print("🔌 正在挂载国风水彩画风 LoRA...")
-lora_path = "./output_lora/madias_style_lora" 
-if os.path.exists(lora_path):
-    pipe.load_lora_weights(lora_path)
-else:
-    pipe.load_lora_weights("./output_lora/madias_style_lora")
+pipe.load_lora_weights("./output_lora/madias_style_lora")
 
 pipe.to(device)
 
