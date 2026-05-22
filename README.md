@@ -1,11 +1,12 @@
 ---
-title: AIGC Image Generator
+title: AIGC Image Generator_lora (Madias Style)
 emoji: 🎨
-colorFrom: blue
-colorTo: purple
+colorFrom: green
+colorTo: hf-logo
 sdk: gradio
 app_file: app.py
 pinned: false
 ---
 
-本项目由 Github Actions 自动同步部署。
+# 结构控制型国风水彩场景生成器
+
