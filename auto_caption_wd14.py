@@ -1,9 +1,9 @@
 import os
-# --- 破壁魔法开始 ---
+# --- 国内镜像加速下载 ---
 os.environ['CURL_CA_BUNDLE'] = ''
 os.environ['REQUESTS_CA_BUNDLE'] = ''
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-# --- 破壁魔法结束 ---
+# --- 结束 ---
 
 import numpy as np
 import pandas as pd
@@ -14,39 +14,35 @@ from tqdm import tqdm
 
 # ================= 1. 打标参数配置 =================
 DATA_DIR = "./dataset/image"
-# 我们使用开源界极其稳定、专攻二次元的 WD14 v2 模型
+# 使用开源的 WD14 v2 模型
 REPO_ID = "SmilingWolf/wd-v1-4-vit-tagger-v2"
 THRESHOLD = 0.35 # 置信度阈值（分数大于 0.35 的标签才保留）
 
-# 你的专属灵魂前缀和后缀（这就是那 20% 的人工灵魂注入）
+# 专属前缀和后缀
 PREFIX_TAGS = "madias_style"
 SUFFIX_TAGS = "traditional media, watercolor (medium), gufeng, pastel colors"
 
 # ================= 2. 自动拉取模型 =================
-print("⏳ 正在连接国内镜像，拉取 WD14 自动打标大脑...")
-print("（如果是第一次运行，会下载约 300MB 的模型，请耐心等待）")
 csv_path = hf_hub_download(repo_id=REPO_ID, filename="selected_tags.csv")
 onnx_path = hf_hub_download(repo_id=REPO_ID, filename="model.onnx")
 
 df = pd.read_csv(csv_path)
 tag_names = df["name"].tolist()
 
-# ================= 3. 组装推断引擎 =================
-# 使用 CPU 运行，防止弄脏你极其珍贵的 GPU 炼丹环境
+
 session = rt.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
 input_name = session.get_inputs()[0].name
 
 def prepare_image(image_path):
-    """WD14 专用的图片预处理逻辑"""
     img = Image.open(image_path).convert('RGB')
     img = img.resize((448, 448), Image.Resampling.BICUBIC)
-    # 转换为 BGR 格式的 numpy 数组，这是该模型的专属口味
+    # 转换为 BGR 格式的 numpy 数组
     img_array = np.array(img, dtype=np.float32)[:, :, ::-1]
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
-# ================= 4. 启动流水线 =================
-print("🚀 引擎就绪！开始智能打标...")
+# ================= 4. 启动打标进程 =================
+print("开始给图片打标签")
 
 for root, dirs, files in os.walk(DATA_DIR):
     for file in tqdm(files, desc="打标进度"):
@@ -54,7 +50,7 @@ for root, dirs, files in os.walk(DATA_DIR):
             img_path = os.path.join(root, file)
             txt_path = os.path.splitext(img_path)[0] + '.txt'
 
-            # 🔒 【核心防覆盖锁】如果 txt 已经存在，说明是老图，直接跳过！
+            #如果 txt 已经存在，说明是老图，直接跳过！
             if os.path.exists(txt_path):
                 continue
 
@@ -73,7 +69,7 @@ for root, dirs, files in os.walk(DATA_DIR):
                             # Danbooru 标准规范：把标签里的下划线替换成空格
                             found_tags.append(tag_name.replace("_", " "))
 
-                # 3. 组装终极公式：前缀 + AI提取词 + 后缀
+                # 3. 组装公式：前缀 + AI提取词 + 后缀
                 final_tags_list = [PREFIX_TAGS] + found_tags + [SUFFIX_TAGS]
                 final_tags_str = ", ".join(final_tags_list)
 
@@ -84,4 +80,4 @@ for root, dirs, files in os.walk(DATA_DIR):
             except Exception as e:
                 print(f"\n⚠️ 处理 {file} 时遇到小问题: {e}")
 
-print("🎉 全部处理完毕！你的完美数据集已经诞生，快去文件夹里检查战果吧！")
+print("所有图片的标签已生成！")

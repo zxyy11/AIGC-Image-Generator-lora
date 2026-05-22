@@ -1,9 +1,9 @@
 import os
-# --- 破壁魔法开始（解决 SSL 拦截与加速下载） ---
+# --（解决 SSL 拦截与加速下载） ---
 os.environ['CURL_CA_BUNDLE'] = ''
 os.environ['REQUESTS_CA_BUNDLE'] = ''
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-# --- 破壁魔法结束 ---
+# --- 结束 ---
 
 import torch
 import torch.nn.functional as F
@@ -15,22 +15,21 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-# ================= 1. 炼丹超参数配置 =================
-# 核心修改：把基础大模型换成了专精二次元和风景的 Counterfeit 神模！
+# ================= 1. 超参数配置 =================
 MODEL_ID = "gsdf/Counterfeit-V2.5"          
 
 DATA_DIR = "./dataset/image/50_madias"                # 数据集路径
 OUTPUT_DIR = "./output_lora"                # 练好的模型保存路径
 RANK = 32                                   # LoRA 的脑容量 (Rank)
 LEARNING_RATE = 5e-5                        # 学习率
-EPOCHS = 3                                 # 训练轮数 (完美卡在黄金甜点区)
+EPOCHS = 3                                 # 训练轮数 
 BATCH_SIZE = 2                              # 3090 显存够大，可以一次吃 2 张图
 RESOLUTION = 512                            # 训练分辨率
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# ================= 2. 数据集加载器 (兼容 100_ 文件夹格式) =================
+# ================= 2. 数据集加载 =================
 class MadiasDataset(Dataset):
     def __init__(self, folder, tokenizer, size):
         self.image_paths = []
@@ -42,7 +41,7 @@ class MadiasDataset(Dataset):
             transforms.Normalize([0.5], [0.5]), # 归一化到 [-1, 1]
         ])
 
-        print("🔍 正在解析文件夹格式...")
+        print(" 正在解析文件夹格式...")
         for root, dirs, files in os.walk(folder):
             folder_name = os.path.basename(root)
             repeats = 1
@@ -60,8 +59,8 @@ class MadiasDataset(Dataset):
                         self.image_paths.extend([img_path] * repeats)
                         self.captions.extend([caption] * repeats)
 
-        print(f"📦 发现 {len(set(self.image_paths))} 张独立图片。")
-        print(f"🔄 按照循环倍数计算，每个 Epoch 投喂数据量为: {len(self.image_paths)} 样本。")
+        print(f"发现 {len(set(self.image_paths))} 张独立图片。")
+        print(f"按照循环倍数计算，每个 Epoch 投喂数据量为: {len(self.image_paths)} 样本。")
 
     def __len__(self):
         return len(self.image_paths)
@@ -79,8 +78,8 @@ class MadiasDataset(Dataset):
         )
         return {"pixel_values": pixel_values, "input_ids": inputs.input_ids.squeeze()}
 
-# ================= 3. 核心炼丹炉组装 =================
-print("⏳ 正在把神级底模搬运到 3090 显存中...")
+# ================= 3. 组装 =================
+print(" 把Counterfeit-V2.5到 3090 显存中")
 tokenizer = CLIPTokenizer.from_pretrained(MODEL_ID, subfolder="tokenizer")
 text_encoder = CLIPTextModel.from_pretrained(MODEL_ID, subfolder="text_encoder").to(device)
 vae = AutoencoderKL.from_pretrained(MODEL_ID, subfolder="vae").to(device)
@@ -92,8 +91,7 @@ vae.requires_grad_(False)
 text_encoder.requires_grad_(False)
 unet.requires_grad_(False)
 
-# 动态外挂：给 UNet 植入 PEFT LoRA 记忆芯片
-print("🔌 正在给 UNet 外接 LoRA 记忆芯片...")
+print("正在给 UNet 外接 LoRA 微调")
 lora_config = LoraConfig(
     r=RANK,
     lora_alpha=RANK,
@@ -102,13 +100,13 @@ lora_config = LoraConfig(
 unet = get_peft_model(unet, lora_config)
 unet.print_trainable_parameters() 
 
-# ================= 4. 点火开炼 =================
+# ================= 4. 开始训练 =================
 dataset = MadiasDataset(DATA_DIR, tokenizer, RESOLUTION)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 optimizer = torch.optim.AdamW(unet.parameters(), lr=LEARNING_RATE)
 scaler = torch.cuda.amp.GradScaler() # 启用混合精度，极致优化 3090 显存
 
-print("🚀 燃料加注完毕！3090 引擎全开，开始炼丹！")
+print("有GPU")
 unet.train()
 
 for epoch in range(EPOCHS):
@@ -150,7 +148,7 @@ for epoch in range(EPOCHS):
 
     print(f"✅ 第 {epoch+1} 轮结束, 平均 Loss: {total_loss/len(dataloader):.4f}")
 
-# ================= 5. 保存胜利果实 =================
+# ================= 5.保存结果 =================
 save_path = os.path.join(OUTPUT_DIR, "madias_style_lora")
 unet.save_pretrained(save_path)
 print(f"🎉 炼丹大功告成！专属 LoRA 权重已保存在: {save_path}")
