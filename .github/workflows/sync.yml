@@ -19,5 +19,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/zxyy11/zxyy11/AIGC_Image_Generator_lora main
-          
+          git push --force https://zxyy11:$HF_TOKEN@huggingface.co/spaces/zxyy11/AIGC_Image_Generator_lora main
