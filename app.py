@@ -1,6 +1,9 @@
 import os
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-
+# 检测环境是否为本地
+if not os.getenv("SPACE_ID"):
+    os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
+else:
+    print("云端环境，使用官方默认源")
 import gradio as gr
 import torch
 import cv2
